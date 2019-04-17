@@ -1,6 +1,101 @@
 body {
-    background-image: url(../images/background.jpg);
-    background-color: #fff;
-    font-size: 1em;
-    font-family: 'Rajdhani', sans-serif;
+    background-color: lightgrey;
+    font-size: 2em;
+    font-family: 'Courgette', cursive;;
+}
+
+.owl-carousel .item {
+    height: 30rem;
+    background: #4DC7A0;
+    padding: 1rem;
+}
+
+.answerSpan {
+    display: none;
+}
+
+.question-slide {
+    padding: 30px;
+}
+
+label.btn {
+    padding: 18px 60px;
+    white-space: normal;
+    -webkit-transform: scale(1.0);
+    -moz-transform: scale(1.0);
+    -o-transform: scale(1.0);
+    -webkit-transition-duration: .3s;
+    -moz-transition-duration: .3s;
+    -o-transition-duration: .3s
+}
+
+label.btn:hover {
+    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
+    -webkit-transform: scale(1.05);
+    -moz-transform: scale(1.05);
+    -o-transform: scale(1.05)
+}
+
+label.btn-block {
+    text-align: left;
+    position: relative;
+    cursor: pointer;
+}
+
+label .btn-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    padding: 0 10px;
+    background: rgba(0, 0, 0, .15);
+    height: 100%;
+}
+
+.answerRadioButton {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+/* CSS 3: Background Style */
+
+.hero {
+    background-color: #EEEEEE;
+    width: 100%;
+    height: 100%;
+    max-height: calc(100% - 50px);
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: transparent;
+    background: -moz-linear-gradient(top, rgba(114, 81, 109, 0.2) 0%, rgba(238, 238, 238, 1) 100%);
+    background: -webkit-linear-gradient(top, rgba(114, 81, 109, 0.2) 0%, rgba(238, 238, 238, 1) 100%);
+    background: linear-gradient(to bottom, rgba(114, 81, 109, 0.2) 0%, rgba(238, 238, 238, 1) 100%);
+    z-index: 3;
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #EEEEEE;
+    z-index: 1;
+}
+
+#hero-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
 }

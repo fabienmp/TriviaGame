@@ -12,13 +12,45 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/javascript/carousel-plugin/assets/owl.carousel.css" />
+    <link rel="stylesheet" type="text/css" href="assets/javascript/carousel-plugin/assets/owl.theme.default.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
 
+    <div class="container">
+        <div class="overlay">
+            <div class="owl-carousel owl-theme container" id='carouselSlides'>
+                <div class="my-3 p-3 bg-white rounded shadow-sm panel panel-primary">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <h1>Trivia Game</h1>
+                        </div>
+                    </div>
+                    <div class="row p-5">
+                        <div class="col-md-12 text-center ">
+                            <button type="button" id="startButton" class="btn btn-primary btn-lg">Start</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="my-3 p-3 bg-white rounded shadow-sm container" id="timerDiv" style="display: none;">
+                <div id='timer'>
 
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 10%"
+                        aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="background">
+            <canvas id="hero-canvas" width="1920" height="1080"></canvas>
+        </div>
+    </div>
 
     <!-- Added link to the jQuery Library -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -32,7 +64,9 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="assets/javascript/game.js" type="text/javascript"></script>
+    <script type="text/javascript" src="assets/javascript/carousel-plugin/owl.carousel.js"></script>
+    <script src="assets/javascript/background.js?refresh=243" type="text/javascript"></script>
+    <script src="assets/javascript/app.js?refresh=243" type="text/javascript"></script>
 </body>
 
 </html>
