@@ -1,4 +1,4 @@
-var TIME_ALLOWED_QUESTION = 200;
+var TIME_ALLOWED_QUESTION = 5;
 
 function TriviaGame(totalSeconds) {
     this.totalQuestionsCount = 0,
