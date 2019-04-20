@@ -16,7 +16,9 @@ function TriviaGame(totalSeconds) {
                 window.QUESTION_TIMER = setTimeout(window.CURRENT_GAME.questionTimerFunction.bind(null, --timeLeft, total), 1000);
             
             } else {
+                clearTimeout(window.QUESTION_TIMER);
                 window.CURRENT_GAME.totalUnansweredQuestions += 1;
+                window.CURRENT_GAME.removeClickEvents(questions.length - window.CURRENT_GAME.totalQuestionsCount - 1);
                 window.CURRENT_GAME.updateResultSlide();
                 window.CURRENT_GAME.rewindTimer();
             }
@@ -106,6 +108,20 @@ function TriviaGame(totalSeconds) {
             $('#resultSlide_IncorrectAnswers').text('Incorrect Answer(s): ' + this.totalIncorrectAnswers);
             $('#resultSlide_UnansweredQuestions').text('Unanswered Questions: ' + this.totalUnansweredQuestions);
         },
+        this.removeClickEvents = function (questionIndex) {
+
+            for (var answerIndex = 0; answerIndex < questions[questionIndex].Answers.length; answerIndex++) {
+                var answerElement = $('#' + questionIndex + '__' + answerIndex + '__answerRadioButton');
+                answerElement.off('click');
+                if (answerIndex ==  questions[questionIndex].AnswerIndex) {
+                    answerElement.parent().removeClass('answerRadioLabel');
+                } else {
+                    answerElement.parent().addClass('disabled');
+                    answerElement.parent().removeClass('answerRadioLabel');
+                }
+            }
+
+        },
         this.addQuestionSlides = function () {
 
             for (var questionIndex = 0; questionIndex < questions.length; questionIndex++) {
@@ -148,9 +164,7 @@ function TriviaGame(totalSeconds) {
                     var questionRadioButtonId = questionIndex + '__' + answerIndex + '__answerRadioButton';
 
                     $('#' + questionRadioButtonId).click({
-                            passedQuestionIndex: questionIndex,
-                            passedTotalAnswers: questions[questionIndex].Answers.length,
-                            passedCorrectAnswerIndex: questions[questionIndex].AnswerIndex
+                            passedQuestionIndex: questionIndex
                         },
                         function (s) {
 
@@ -159,7 +173,7 @@ function TriviaGame(totalSeconds) {
                             var choice = $(this).val();
                             clearTimeout(window.QUESTION_TIMER);
 
-                            if (choice == s.data.passedCorrectAnswerIndex) {
+                            if (choice == questions[s.data.passedQuestionIndex].AnswerIndex) {
                                 $(this).parent().parent().parent().find('.correctAnswerSpan').show();
                                 window.CURRENT_GAME.totalCorrectAnswers += 1;
                             } else {
@@ -167,17 +181,7 @@ function TriviaGame(totalSeconds) {
                                 window.CURRENT_GAME.totalIncorrectAnswers += 1;
                             }
 
-                            for (var answerIndex = 0; answerIndex < s.data.passedTotalAnswers; answerIndex++) {
-                                var answerElement = $('#' + s.data.passedQuestionIndex + '__' + answerIndex + '__answerRadioButton');
-                                answerElement.off('click');
-                                if (answerIndex == s.data.passedCorrectAnswerIndex) {
-                                    answerElement.parent().removeClass('answerRadioLabel');
-                                } else {
-                                    answerElement.parent().addClass('disabled');
-                                    answerElement.parent().removeClass('answerRadioLabel');
-                                }
-                            }
-
+                            window.CURRENT_GAME.removeClickEvents(s.data.passedQuestionIndex);
                             window.CURRENT_GAME.updateResultSlide();
                             window.CURRENT_GAME.rewindTimer();
 
@@ -204,9 +208,7 @@ function TriviaGame(totalSeconds) {
 
                     $('#' + questionRadioButtonId).off('click');
                     $('#' + questionRadioButtonId).click({
-                            passedQuestionIndex: questionIndex,
-                            passedTotalAnswers: questions[questionIndex].Answers.length,
-                            passedCorrectAnswerIndex: questions[questionIndex].AnswerIndex
+                            passedQuestionIndex: questionIndex
                         },
                         function (s) {
 
@@ -215,7 +217,7 @@ function TriviaGame(totalSeconds) {
                             var choice = $(this).val();
                             clearTimeout(window.QUESTION_TIMER);
 
-                            if (choice == s.data.passedCorrectAnswerIndex) {
+                            if (choice == questions[s.data.passedQuestionIndex].AnswerIndex) {
                                 $(this).parent().parent().parent().find('.correctAnswerSpan').show();
                                 window.CURRENT_GAME.totalCorrectAnswers += 1;
                             } else {
@@ -223,10 +225,10 @@ function TriviaGame(totalSeconds) {
                                 window.CURRENT_GAME.totalIncorrectAnswers += 1;
                             }
 
-                            for (var answerIndex = 0; answerIndex < s.data.passedTotalAnswers; answerIndex++) {
+                            for (var answerIndex = 0; answerIndex < questions[s.data.passedQuestionIndex].Answers.length; answerIndex++) {
                                 var answerElement = $('#' + s.data.passedQuestionIndex + '__' + answerIndex + '__answerRadioButton');
                                 answerElement.off('click');
-                                if (answerIndex == s.data.passedCorrectAnswerIndex) {
+                                if (answerIndex == questions[s.data.passedQuestionIndex].AnswerIndex) {
                                     answerElement.parent().removeClass('answerRadioLabel');
                                 } else {
                                     answerElement.parent().addClass('disabled');
