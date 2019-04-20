@@ -1,10 +1,10 @@
-var TIME_ALLOWED_QUESTION = 500;
+var TIME_ALLOWED_QUESTION = 2;
 
 function TriviaGame(totalSeconds) {
     this.totalQuestionsCount = 0,
         this.totalCorrectAnswers = 0,
         this.totalIncorrectAnswers = 0,
-        this.totalUnansweredAnswers = 0,
+        this.totalUnansweredQuestions = 0,
         this.timerTotalSeconds = totalSeconds,
         this.questionTimerFunction = function (timeLeft, total) {
             if (timeLeft >= 0) {
@@ -13,7 +13,10 @@ function TriviaGame(totalSeconds) {
                 $('.progress-bar').css('width', perfectTimeSofar + '%');
                 $('.progress-bar').attr('aria-valuenow', perfectTimeSofar);
                 window.QUESTION_TIMER = setTimeout(window.CURRENT_GAME.questionTimerFunction.bind(null, --timeLeft, total), 1000);
+            
             } else {
+                window.CURRENT_GAME.totalUnansweredQuestions += 1;
+                window.CURRENT_GAME.updateResultSlide();
                 window.CURRENT_GAME.rewindTimer();
             }
         },
@@ -25,25 +28,24 @@ function TriviaGame(totalSeconds) {
 
             this.questionTimerFunction(timeLeft, this.timerTotalSeconds);
         },
-        this.rewindTimer = function () {
-
-            function timerFunction(timeLeft, total) {
-                if (timeLeft <= total) {
-
-                    var perfectTimeSofar = Math.floor(((total - timeLeft) / total) * 100);
-                    $('.progress-bar').css('width', perfectTimeSofar + '%');
-                    $('.progress-bar').attr('aria-valuenow', perfectTimeSofar);
-                    setTimeout(timerFunction.bind(null, ++timeLeft, total), 100);
-                } else {
-                    window.CURRENT_GAME.showNextQuestion();
-                }
+        this.nextQuestionTimerFunction = function(timeLeft, total)
+        {
+            if (timeLeft <= total) {
+                var perfectTimeSofar = Math.floor(((total - timeLeft) / total) * 100);
+                $('.progress-bar').css('width', perfectTimeSofar + '%');
+                $('.progress-bar').attr('aria-valuenow', perfectTimeSofar);
+                window.NEXT_QUESTION_TIMER = setTimeout(window.CURRENT_GAME.nextQuestionTimerFunction.bind(null, ++timeLeft, total), 100);
+            } else {
+                window.CURRENT_GAME.showNextQuestion();
             }
+        },
+        this.rewindTimer = function () {
 
             $('#timer').html('Next question starting soon...');
             $('.progress-bar').css('width', 100 + '%');
             $('.progress-bar').attr('aria-valuenow', 100);
 
-            setTimeout(timerFunction.bind(null, 0, 100), 500);
+            setTimeout(this.nextQuestionTimerFunction.bind(null, 0, 50), 500);
 
         },
         this.showNextQuestion = function () {
@@ -56,11 +58,7 @@ function TriviaGame(totalSeconds) {
                 $('#timerDiv').fadeOut("slow ", function () {
                     window.OWL_CONTROL.trigger('next.owl');
                 });
-
             }
-        },
-        this.verifyAnswer = function () {
-
         },
         this.addResultsSlide = function () {
             var newSlide = $('<div class="my-3 p-3 bg-white rounded shadow-sm panel panel-primary result-slide">');
@@ -70,17 +68,31 @@ function TriviaGame(totalSeconds) {
             newSlide.append(panelHeading);
 
             var newSlidePanelBody = $('<div class="panel-body">');
-            newSlidePanelBody.append('<p>' + 'You did pretty good' + '</p>');
-
+            newSlidePanelBody.append('<p id="resultSlide_Status">' + '</p>');
+            newSlidePanelBody.append('<p id="resultSlide_CorrectAnswers">' + '</p>');
+            newSlidePanelBody.append('<p id="resultSlide_IncorrectAnswers">' + '</p>');
+            newSlidePanelBody.append('<p id="resultSlide_UnansweredQuestions">' + 'Unanswered Questions:' + '</p>');
+            newSlidePanelBody.append('<a type="button" id="restartButton" class="btn btn-primary btn-lg" href="#initialSlide">Restart</a>')
             newSlide.append(newSlidePanelBody);
 
             $('#carouselSlides').append(newSlide);
+
+            $('#restartButton').click(function (s) {
+                window.CURRENT_GAME.reset();
+            });
+
+        },
+        this.updateResultSlide = function () {
+            $('#resultSlide_Status').text('You did pretty good!');
+            $('#resultSlide_CorrectAnswers').text('Correct Answer(s): ' + this.totalCorrectAnswers);
+            $('#resultSlide_IncorrectAnswers').text('Incorrect Answer(s): ' + this.totalIncorrectAnswers);
+            $('#resultSlide_UnansweredQuestions').text('Unanswered Questions: ' + this.totalUnansweredQuestions);
         },
         this.addQuestionSlides = function () {
 
             for (var questionIndex = 0; questionIndex < questions.length; questionIndex++) {
 
-                var newSlide = $('<div class="my-3 bg-white rounded shadow-sm panel panel-primary question-slide">');
+                var newSlide = $('<div class="my-3 bg-white rounded shadow-sm panel panel-primary question-slide" data-hash="question_' + questionIndex + '">');
 
                 var panelHeading = $('<div class="panel-heading">');
                 panelHeading.append('<h4>' + 'Question #' + (questionIndex + 1) + '</h4>')
@@ -92,14 +104,12 @@ function TriviaGame(totalSeconds) {
 
                     var questionRadioLabelId = questionIndex + '__' + answerIndex + '__answerRadioLabel';
                     var questionRadioButtonId = questionIndex + '__' + answerIndex + '__answerRadioButton';
-                    var questionRadioLabel = $('<label class="col-md-6 btn btn-lg btn-primary btn-block" id="' + questionRadioLabelId + '"><span class="btn-label">' +
+                    var questionRadioLabel = $('<label class="col-md-6 btn btn-lg btn-primary btn-block answerRadioLabel" id="' + questionRadioLabelId + '"><span class="btn-label">' +
                         '<i class="fa fa-angle-right"></i></span><input id="' + questionRadioButtonId + '" type="radio" name="answerRadioButton" value="' +
                         answerIndex + '" class="answerRadioButton">' +
                         questions[questionIndex].Answers[answerIndex] +
                         '</label>');
                     newSlidePanelBody.append(questionRadioLabel);
-
-
 
                 }
                 newSlide.append(newSlidePanelBody);
@@ -120,14 +130,15 @@ function TriviaGame(totalSeconds) {
                     var questionRadioButtonId = questionIndex + '__' + answerIndex + '__answerRadioButton';
 
                     $('#' + questionRadioButtonId).click({
-
+                            passedQuestionIndex: questionIndex,
+                            passedTotalAnswers: questions[questionIndex].Answers.length,
                             passedCorrectAnswerIndex: questions[questionIndex].AnswerIndex
                         },
                         function (s) {
 
                             s.stopPropagation();
 
-                            var choice = $(this).find('input:radio').val();
+                            var choice = $(this).val();
                             clearTimeout(window.QUESTION_TIMER);
 
                             if (choice == s.data.passedCorrectAnswerIndex) {
@@ -137,11 +148,79 @@ function TriviaGame(totalSeconds) {
                                 $(this).parent().parent().parent().find('.incorrectAnswerSpan').show();
                                 window.CURRENT_GAME.totalIncorrectAnswers += 1;
                             }
+
+                            for (var answerIndex = 0; answerIndex < s.data.passedTotalAnswers; answerIndex++) {
+                                var answerElement = $('#' + s.data.passedQuestionIndex + '__' + answerIndex + '__answerRadioButton');
+                                answerElement.off('click');
+                                if (answerIndex == s.data.passedCorrectAnswerIndex) {
+                                    answerElement.parent().removeClass('answerRadioLabel');
+                                } else {
+                                    answerElement.parent().addClass('disabled');
+                                    answerElement.parent().removeClass('answerRadioLabel');
+                                }
+                            }
+
+                            window.CURRENT_GAME.updateResultSlide();
                             window.CURRENT_GAME.rewindTimer();
 
                         });
                 }
 
+            }
+        },
+        this.reset = function () {
+            this.totalCorrectAnswers = 0;
+            this.totalIncorrectAnswers = 0;
+            this.totalUnansweredQuestions = 0;
+            this.totalQuestionsCount = questions.length;
+            $('.correctAnswerSpan').hide();
+            $('.incorrectAnswerSpan').hide();
+            for (var questionIndex = 0; questionIndex < questions.length; questionIndex++) {
+                for (var answerIndex = 0; answerIndex < questions[questionIndex].Answers.length; answerIndex++) {
+                    var answerElement = $('#' + questionIndex + '__' + answerIndex + '__answerRadioButton');
+
+                    answerElement.parent().removeClass('disabled');
+                    answerElement.parent().addClass('answerRadioLabel');
+
+                    var questionRadioButtonId = questionIndex + '__' + answerIndex + '__answerRadioButton';
+
+                    $('#' + questionRadioButtonId).off('click');
+                    $('#' + questionRadioButtonId).click({
+                            passedQuestionIndex: questionIndex,
+                            passedTotalAnswers: questions[questionIndex].Answers.length,
+                            passedCorrectAnswerIndex: questions[questionIndex].AnswerIndex
+                        },
+                        function (s) {
+
+                            s.stopPropagation();
+
+                            var choice = $(this).val();
+                            clearTimeout(window.QUESTION_TIMER);
+
+                            if (choice == s.data.passedCorrectAnswerIndex) {
+                                $(this).parent().parent().parent().find('.correctAnswerSpan').show();
+                                window.CURRENT_GAME.totalCorrectAnswers += 1;
+                            } else {
+                                $(this).parent().parent().parent().find('.incorrectAnswerSpan').show();
+                                window.CURRENT_GAME.totalIncorrectAnswers += 1;
+                            }
+
+                            for (var answerIndex = 0; answerIndex < s.data.passedTotalAnswers; answerIndex++) {
+                                var answerElement = $('#' + s.data.passedQuestionIndex + '__' + answerIndex + '__answerRadioButton');
+                                answerElement.off('click');
+                                if (answerIndex == s.data.passedCorrectAnswerIndex) {
+                                    answerElement.parent().removeClass('answerRadioLabel');
+                                } else {
+                                    answerElement.parent().addClass('disabled');
+                                    answerElement.parent().removeClass('answerRadioLabel');
+                                }
+                            }
+
+                            window.CURRENT_GAME.updateResultSlide();
+                            window.CURRENT_GAME.rewindTimer();
+
+                        });
+                }
             }
         },
         this.init = function () {
@@ -174,15 +253,52 @@ function TriviaGame(totalSeconds) {
 
 var questions = [
     new Object({
-        Question: ' question?',
-        Answers: ['Russia', 'Brazil', 'England', 'France'],
-        Hint: 'this is a hint 11',
+        Question: 'What powerful force allows black holes to absorb light?',
+        Answers: ['Nuclear fusion',
+            'Electromagnetism',
+            'Gravity',
+            'Nuclear bonding',
+            "All of the above"
+        ],
+        Hint: '',
         AnswerIndex: 0
     }),
     new Object({
-        Question: ' question?',
-        Answers: ['Russia', 'Brazil', 'England', 'France'],
-        Hint: 'this is a hint 222',
+        Question: 'How do scientists know that black holes exist?',
+        Answers: ['By running experiments on the Sun',
+            'By observing objects and light around black holes',
+            'By viewing black holes with powerful telescopes',
+            'All of the above', 'None of the Above'
+        ],
+        Hint: '',
+        AnswerIndex: 0
+    }),
+    new Object({
+        Question: 'How do black holes form?',
+        Answers: ['When planets collide',
+            'When nuclear bombs explode',
+            'When comets strike planets',
+            'When giant stars explode',
+            'When asteroids hit stars'
+        ],
+        Hint: '',
+        AnswerIndex: 0
+    }),
+    new Object({
+        Question: 'Where do super massive black holes likely exist?',
+        Answers: ['At the center of the Solar System',
+            'Inside gas giant planets',
+            'At the center of galaxies',
+            'All of the above',
+            'None of the Above'
+        ],
+        Hint: '',
+        AnswerIndex: 0
+    }),
+    new Object({
+        Question: "True or False: Black holes are invisible because they don't reflect light.",
+        Answers: ['TRUE', 'FALSE'],
+        Hint: '',
         AnswerIndex: 0
     })
 ];
