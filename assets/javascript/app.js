@@ -1,4 +1,4 @@
-var TIME_ALLOWED_QUESTION = 2;
+var TIME_ALLOWED_QUESTION = 200;
 
 function TriviaGame(totalSeconds) {
     this.totalQuestionsCount = 0,
@@ -7,6 +7,7 @@ function TriviaGame(totalSeconds) {
         this.totalUnansweredQuestions = 0,
         this.timerTotalSeconds = totalSeconds,
         this.questionTimerFunction = function (timeLeft, total) {
+
             if (timeLeft >= 0) {
                 $('#timer').html(timeLeft + ' second(s) left.');
                 var perfectTimeSofar = Math.floor(((total - timeLeft) / total) * 100);
@@ -19,6 +20,7 @@ function TriviaGame(totalSeconds) {
                 window.CURRENT_GAME.updateResultSlide();
                 window.CURRENT_GAME.rewindTimer();
             }
+
         },
         this.displayTimer = function (timeLeft) {
 
@@ -36,8 +38,10 @@ function TriviaGame(totalSeconds) {
                 $('.progress-bar').attr('aria-valuenow', perfectTimeSofar);
                 window.NEXT_QUESTION_TIMER = setTimeout(window.CURRENT_GAME.nextQuestionTimerFunction.bind(null, ++timeLeft, total), 100);
             } else {
+                clearTimeout(window.NEXT_QUESTION_TIMER);
                 window.CURRENT_GAME.showNextQuestion();
             }
+
         },
         this.rewindTimer = function () {
 
@@ -59,6 +63,7 @@ function TriviaGame(totalSeconds) {
                     window.OWL_CONTROL.trigger('next.owl');
                 });
             }
+
         },
         this.addResultsSlide = function () {
             var newSlide = $('<div class="my-3 p-3 bg-white rounded shadow-sm panel panel-primary result-slide">');
@@ -74,7 +79,7 @@ function TriviaGame(totalSeconds) {
             newSlidePanelBody.append('<p id="resultSlide_UnansweredQuestions">' + 'Unanswered Questions:' + '</p>');
             newSlidePanelBody.append('<a type="button" id="restartButton" class="btn btn-primary btn-lg" href="#initialSlide">Restart</a>')
             newSlide.append(newSlidePanelBody);
-
+            
             $('#carouselSlides').append(newSlide);
 
             $('#restartButton').click(function (s) {
@@ -83,7 +88,20 @@ function TriviaGame(totalSeconds) {
 
         },
         this.updateResultSlide = function () {
-            $('#resultSlide_Status').text('You did pretty good!');
+            var scoreLevel = Math.floor((this.totalCorrectAnswers / questions.length) * 100); 
+            if(scoreLevel > 80)
+            {
+                $('#resultSlide_Status').text('You did very well, congratulations!');
+            }
+            else if(scoreLevel > 60)
+            {
+                $('#resultSlide_Status').text('You did pretty good! Practice makes perfect.');
+            }
+            else
+            {
+                $('#resultSlide_Status').text('You could have done better... Time to study again.');
+            }
+            
             $('#resultSlide_CorrectAnswers').text('Correct Answer(s): ' + this.totalCorrectAnswers);
             $('#resultSlide_IncorrectAnswers').text('Incorrect Answer(s): ' + this.totalIncorrectAnswers);
             $('#resultSlide_UnansweredQuestions').text('Unanswered Questions: ' + this.totalUnansweredQuestions);
@@ -261,7 +279,7 @@ var questions = [
             "All of the above"
         ],
         Hint: '',
-        AnswerIndex: 0
+        AnswerIndex: 2
     }),
     new Object({
         Question: 'How do scientists know that black holes exist?',
@@ -271,7 +289,7 @@ var questions = [
             'All of the above', 'None of the Above'
         ],
         Hint: '',
-        AnswerIndex: 0
+        AnswerIndex: 1
     }),
     new Object({
         Question: 'How do black holes form?',
@@ -282,7 +300,7 @@ var questions = [
             'When asteroids hit stars'
         ],
         Hint: '',
-        AnswerIndex: 0
+        AnswerIndex: 3
     }),
     new Object({
         Question: 'Where do super massive black holes likely exist?',
@@ -293,7 +311,7 @@ var questions = [
             'None of the Above'
         ],
         Hint: '',
-        AnswerIndex: 0
+        AnswerIndex: 2
     }),
     new Object({
         Question: "True or False: Black holes are invisible because they don't reflect light.",
